@@ -13,17 +13,24 @@ Feedback ist immer willkomen. -->
 
     <script>
         // Version
-        const Version = "0.22";
+        const Version = "0.27";
     </script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kalender Generator Bienen</title>
 
-    <!--     Zeitpläne laden -->
+    <!-- Zeitpläne laden -->
     <script src="schedules.js"></script>
 
-    <!--     CSS laden -->
+    <!-- 🔥 FIX: sicherstellen, dass emojiMap global verfügbar ist -->
+    <script>
+        if (typeof emojiMap !== "undefined") {
+            window.emojiMap = emojiMap;
+        }
+    </script>
+
+    <!-- CSS laden -->
     <link rel="stylesheet" href="style.css">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
@@ -182,9 +189,120 @@ Feedback ist immer willkomen. -->
         });
     }
 
-    function downloadICS() { /* unverändert */ }
-    function downloadPDF() { /* unverändert */ }
+    function downloadICS() {
 
+
+
+        const state = getFormState();
+
+        console.log("scheduleType RAW:", JSON.stringify(state.scheduleType));
+console.log("emoji keys:", Object.keys(emojiMap));
+
+        if (!scheduleData.length) {
+            alert("Kein Zeitplan vorhanden.");
+            return;
+        }
+
+        const checkboxes = document.querySelectorAll("#scheduleList input[type='checkbox']");
+        const emoji = emojiMap[state.scheduleType?.trim()] || "";
+
+        let icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Kalender Generator Bienen//DE
+`;
+
+        scheduleData.forEach((data, index) => {
+
+            const checkbox = checkboxes[index];
+
+            if (!checkbox || !checkbox.checked) return;
+
+            const date = data.taskDate.toISOString().split('T')[0].replace(/-/g, '');
+
+            const now = new Date();
+            const dtstamp = now.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+
+            const uid = `${date}-${index}@bienenkalender`;
+
+            const description = (data.additionalText || "").replace(/\n/g, " ");
+
+            icsContent += `BEGIN:VEVENT
+UID:${uid}
+DTSTAMP:${dtstamp}
+DTSTART;VALUE=DATE:${date}
+SUMMARY:${emoji} ${title} - ${data.task}
+DESCRIPTION:${description}
+END:VEVENT
+`;
+        });
+
+        icsContent += `END:VCALENDAR`;
+
+        const blob = new Blob([icsContent], { type: 'text/calendar' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = downloadFileName + '.ics';
+        a.click();
+
+        URL.revokeObjectURL(url);
+    }
+
+    function downloadPDF() {
+        let xText = 20;
+        let y = xText * 2;
+        let xTask = 35;
+        const pageWidth = 210;
+        const maxWidth = pageWidth - xText * 2 - xTask;
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'mm', 'a4');
+
+        const prefix = document.getElementById('prefix').value.trim();
+        const scheduleType = document.getElementById('scheduleType').value;
+        const title = `${prefix} - ${scheduleType}-Zeitplan ${year}`;
+
+        doc.setFontSize(20);
+        doc.setFont("helvetica", "bold");
+        doc.text(title, xText, 20);
+
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "normal");
+
+        const checkboxes = document.querySelectorAll("#scheduleList input[type='checkbox']");
+
+        scheduleData.forEach(({ taskDate, task, additionalText, formattedDate }, index) => {
+
+            const checkbox = checkboxes[index];
+
+            if (!checkbox || !checkbox.checked) return;
+
+            doc.setFont("helvetica", "bold");
+            doc.text(formattedDate, xText, y);
+            doc.text(task, xText + xTask, y);
+
+            if (additionalText) {
+                doc.setFont("helvetica", "normal");
+                const lines = doc.splitTextToSize(additionalText, maxWidth);
+                doc.text(lines, xText + xTask, y + 5);
+                y += lines.length * 7;
+            }
+
+            y += (xText / 1.2);
+
+            if (y > 280) {
+                doc.addPage();
+                y = 20;
+            }
+        });
+
+        doc.setFont("helvetica", "normal");
+        const creationDate = `Erstellt am: ${new Date().toLocaleDateString('de-DE')} - Version: ${Version}`;
+        doc.text(creationDate, xText, y);
+
+        doc.save(`${downloadFileName}.pdf`);
+    }
 </script>
 </body>
 </html>
