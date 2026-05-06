@@ -261,3 +261,116 @@ canvas:active {
 .hidden {
   display: none !important;
 }
+
+/* ===== EXPERTENMODUS STYLES ===== */
+
+/* Expertenmodus Button */
+#expertModeBtn {
+background-color: #6c757d;
+color: white;
+border: none;
+padding: 8px 16px;
+border-radius: 5px;
+cursor: pointer;
+font-size: 14px;
+transition: all 0.3s ease;
+}
+
+#expertModeBtn:hover {
+background-color: #5a6268;
+transform: translateY(-1px);
+box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+#expertModeBtn.active {
+background-color: #28a745;
+}
+
+#expertModeBtn.active:hover {
+background-color: #218838;
+}
+
+/* Eingabefelder im Expertenmodus */
+.expert-input {
+  border: 2px solid #007bff;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 14px;
+  font-family: inherit;
+  background-color: #fff;
+  transition: all 0.2s ease;
+  width: auto;
+  min-width: 150px;
+}
+
+.expert-input:focus {
+  outline: none;
+  border-color: #0056b3;
+  box-shadow: 0 0 0 3px rgba(0,123,255,0.25);
+  background-color: #f8f9fa;
+}
+
+.expert-input:hover {
+  border-color: #0056b3;
+}
+
+/* Datum-Eingabefeld */
+input.expert-input[type="date"] {
+  min-width: 180px;
+  cursor: pointer;
+}
+
+/* Text-Eingabefeld für Aufgaben */
+input.expert-input[type="text"] {
+  min-width: 300px;
+  flex-grow: 1;
+}
+
+/* Listeneinträge im Expertenmodus */
+#scheduleList li {
+display: flex;
+align-items: center;
+gap: 10px;
+padding: 8px 0;
+flex-wrap: wrap;
+}
+
+/* Strong-Element (Datum) im Expertenmodus */
+#scheduleList li strong {
+display: inline-flex;
+align-items: center;
+}
+
+/* Span-Element (Aufgabe) im Expertenmodus */
+#scheduleList li .task-indent {
+flex-grow: 1;
+display: inline-flex;
+align-items: center;
+}
+
+/* Checkbox Styling */
+.checkbox {
+  margin-right: 10px;
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+}
+
+/* Responsive Anpassungen */
+@media (max-width: 768px) {
+  #expertModeBtn {
+  float: none !important;
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+  }
+
+  .expert-input[type="text"] {
+    min-width: 200px;
+  }
+
+  #scheduleList li {
+  flex-direction: column;
+  align-items: flex-start;
+  }
+}
