@@ -93,7 +93,8 @@ function updateWheelCalculation() {
     if (!wheelDateDisplay) return;
 
     const date = getWheelDate();
-    wheelDateDisplay.innerHTML = `Ausgewähltes Datum: ${formatDateLong(date).slice(0, -1)}`;
+    wheelDateDisplay.innerHTML = `${formatDateLong(date).slice(0, -1)}`;
+    wheelDateDisplay.style.textAlign = 'center';
 }
 
 /**
